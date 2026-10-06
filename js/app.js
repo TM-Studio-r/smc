@@ -75,13 +75,25 @@ function urlBase64ToUint8Array(base64) {
   return Uint8Array.from(binary, (c) => c.charCodeAt(0));
 }
 
+async function ensureServiceWorker() {
+  if (!window.isSecureContext || !("serviceWorker" in navigator)) return null;
+
+  // GitHub Pages serves the app from a repository sub-path, so the SW path
+  // must be relative to index.html (not /sw.js at the domain root).
+  const registration = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+  await navigator.serviceWorker.ready;
+  console.log("TM Messenger SW ready:", registration.scope);
+  return registration;
+}
+
 async function registerPush() {
   if (!state.user) return;
   if (!window.isSecureContext || !("serviceWorker" in navigator) || !("PushManager" in window)) return;
   if (!VAPID_PUBLIC_KEY || VAPID_PUBLIC_KEY.startsWith("YOUR_")) return;
   if ((await requestNotificationPermission()) !== "granted") return;
 
-  const registration = await navigator.serviceWorker.ready;
+  const registration = await ensureServiceWorker();
+  if (!registration) return;
   let subscription = await registration.pushManager.getSubscription();
   if (!subscription) {
     subscription = await registration.pushManager.subscribe({
@@ -463,6 +475,7 @@ supabase.auth.onAuthStateChange((event, session) => {
 
 (async function init() {
   try {
+    await ensureServiceWorker();
     await bootstrapAuthenticated();
   } catch (error) {
     console.error(error);
