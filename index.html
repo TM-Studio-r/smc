@@ -1,29 +1,29 @@
 <!doctype html>
-<html lang="fa" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#111827">
-  <meta name="description" content="پیام‌رسان">
+  <meta name="description" content="ENG">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./assets/icons/icon-192.svg">
   <link rel="stylesheet" href="./css/app.css">
-  <title>پیام‌رسان</title>
+  <title>ENG</title>
 </head>
 <body>
   <div id="app" class="app-shell">
     <section id="loginView" class="glass auth-view">
-      <div class="brand-mark">م</div>
-      <h1 id="appName">پیام‌رسان</h1>
-      <p id="loginIntro" class="muted">یک بار وارد شو؛ روی همین دستگاه می‌ماند.</p>
+      <img src="assets/icons/wellcome.png" class="brand-mark"></img>
+      <h1 id="appName">Wellcome!</h1>
+      <p id="loginIntro" class="muted"></p>
       <form id="profileForm" class="auth-form" novalidate>
-        <label>نام
-          <input id="nameInput" maxlength="40" autocomplete="nickname" required placeholder="مثلاً آریان">
+        <label>Name:
+          <input id="nameInput" maxlength="40" autocomplete="nickname" required placeholder="Enter your name">
         </label>
-        <label>بیو
-          <textarea id="bioInput" maxlength="160" rows="3" placeholder="چند کلمه درباره خودت..."></textarea>
+        <label>Bio:
+          <textarea id="bioInput" maxlength="160" rows="3" placeholder="Write about yourself..."></textarea>
         </label>
-        <button id="loginButton" class="primary" type="submit">ورود</button>
+        <button id="loginButton" class="primary" type="submit">Submit</button>
       </form>
       <p id="loginStatus" class="status" aria-live="polite"></p>
     </section>
@@ -32,40 +32,40 @@
       <aside class="glass sidebar">
         <header class="topbar">
           <div>
-            <div class="eyebrow">پیام‌رسان</div>
-            <h2>چت‌ها</h2>
+            <div class="eyebrow">ENG</div>
+            <h2>Chats</h2>
           </div>
-          <button id="myProfileBtn" class="icon-btn" aria-label="پروفایل من">●</button>
+          <button id="myProfileBtn" class="icon-btn" aria-label="My profile">●</button>
         </header>
         <div id="chatList" class="chat-list"></div>
       </aside>
 
       <main class="glass chat-panel">
         <header class="chat-header">
-          <button id="backBtn" class="icon-btn mobile-only" aria-label="بازگشت">‹</button>
+          <button id="backBtn" class="icon-btn mobile-only" aria-label="Back">‹</button>
           <div id="chatAvatar" class="avatar">گ</div>
           <div class="chat-title-wrap">
-            <h3 id="chatTitle">گروه اصلی</h3>
-            <span id="chatSubtitle" class="muted">در حال اتصال...</span>
+            <h3 id="chatTitle">Main Group</h3>
+            <span id="chatSubtitle" class="muted">Connecting</span>
           </div>
-          <button id="chatInfoBtn" class="icon-btn" aria-label="اطلاعات چت">⋯</button>
+          <button id="chatInfoBtn" class="icon-btn" aria-label="Chat ditails">⋯</button>
         </header>
         <div id="messages" class="messages" aria-live="polite"></div>
         <form id="composer" class="composer">
-          <textarea id="messageInput" rows="1" maxlength="4000" placeholder="پیام..." autocomplete="off"></textarea>
-          <button id="sendButton" class="send-btn" type="submit" aria-label="ارسال">➤</button>
+          <textarea id="messageInput" rows="1" maxlength="4000" placeholder="Message..." autocomplete="off"></textarea>
+          <button id="sendButton" class="send-btn" type="submit" aria-label="Send">➤</button>
         </form>
       </main>
     </section>
   </div>
 
   <dialog id="profileDialog" class="glass dialog">
-    <button class="dialog-close" data-close aria-label="بستن">×</button>
+    <button class="dialog-close" data-close aria-label="Close">×</button>
     <div id="profileContent"></div>
   </dialog>
 
   <dialog id="infoDialog" class="glass dialog">
-    <button class="dialog-close" data-close aria-label="بستن">×</button>
+    <button class="dialog-close" data-close aria-label="Close">×</button>
     <div id="infoContent"></div>
   </dialog>
 
