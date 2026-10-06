@@ -1,4 +1,4 @@
-# TM Messenger — v1 Login-fixed + Push-ready
+# Class gap — v1 Login-fixed + Push-ready
 
 This build is a static GitHub Pages PWA backed by Supabase.
 

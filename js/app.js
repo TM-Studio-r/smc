@@ -22,7 +22,7 @@ function esc(value) {
 }
 
 function time(value) {
-  return new Intl.DateTimeFormat("fa-IR", {
+  return new Intl.DateTimeFormat("en-US", {
     hour: "2-digit", minute: "2-digit",
   }).format(new Date(value));
 }
@@ -37,7 +37,7 @@ function toast(message) {
 
 function setBusy(busy) {
   $("loginButton").disabled = busy;
-  $("loginButton").textContent = busy ? "در حال ورود…" : "ورود";
+  $("loginButton").textContent = busy ? "Signing in…" : "Sign in";
 }
 
 function showLogin(profile = null) {
@@ -77,7 +77,7 @@ function urlBase64ToUint8Array(base64) {
 
 async function ensureServiceWorker() {
   if (!("serviceWorker" in navigator)) {
-    throw new Error("Service Worker پشتیبانی نمی‌شود.");
+    throw new Error("Service Worker is not supported.");
   }
 
   const registration = await navigator.serviceWorker.register("./sw.js", {
@@ -123,7 +123,7 @@ async function registerPush() {
 async function upsertProfile(user, name, bio) {
   const cleanName = name.trim();
   const cleanBio = bio.trim();
-  if (!cleanName) throw new Error("نام را وارد کن.");
+  if (!cleanName) throw new Error("Please enter your name.");
 
   const { error } = await supabase.from("profiles").upsert({
     id: user.id,
@@ -160,7 +160,7 @@ async function loadCurrentProfile() {
 async function ensureMainGroup() {
   const { data, error } = await supabase.rpc("join_main_group");
   if (error) throw error;
-  if (data !== MAIN_GROUP_ID) throw new Error("عضویت گروه اصلی تأیید نشد.");
+  if (data !== MAIN_GROUP_ID) throw new Error("Joining the main group was not confirmed.");
 }
 
 async function loadChats() {
@@ -169,6 +169,12 @@ async function loadChats() {
   state.chats = data || [];
   renderChatList();
   return state.chats;
+}
+
+
+function chatDisplayName(chat) {
+  if (chat?.type === "group") return "Main Group";
+  return chat?.other_name || "User";
 }
 
 function chatAvatar(chat) {
@@ -182,8 +188,8 @@ function renderChatList() {
     <button class="chat-item ${chat.chat_id === state.currentChat ? "active" : ""}" data-chat="${chat.chat_id}">
       <div class="avatar">${esc(chatAvatar(chat))}</div>
       <div class="preview">
-        <h4>${esc(chat.type === "group" ? (chat.title || "گروه اصلی") : (chat.other_name || "کاربر"))}</h4>
-        <p>${esc(chat.type === "group" ? "گروه" : "پیام خصوصی")}</p>
+        <h4>${esc(chatDisplayName(chat))}</h4>
+        <p>${esc(chat.type === "group" ? "Group" : "Private chat")}</p>
       </div>
       <time>${chat.last_message_at ? esc(time(chat.last_message_at)) : ""}</time>
     </button>
@@ -218,9 +224,10 @@ async function getMessages(chatId) {
 function readSystemText(ciphertext) {
   try {
     const data = JSON.parse(ciphertext || "{}");
-    return data.systemText || "پیام سیستمی";
+    const text = String(data.systemText || "System message");
+    return text.endsWith(" به گروه پیوست") ? `${text.slice(0, -14)} joined the group` : text;
   } catch {
-    return "پیام سیستمی";
+    return "System message";
   }
 }
 
@@ -231,17 +238,17 @@ function renderMessage(message) {
   const profile = state.profiles.get(message.sender_id);
   const mine = message.sender_id === state.user?.id;
   // v1 keeps transport content in the ciphertext column. The E2EE key protocol is intentionally a separate hardening step.
-  let text = "پیام";
+  let text = "Message";
   try {
     const payload = JSON.parse(message.ciphertext);
-    text = payload.text || "پیام";
+    text = payload.text || "Message";
   } catch {
-    text = "پیام";
+    text = "Message";
   }
   return `<div class="msg-row ${mine ? "mine" : "other"}">
-    <button class="avatar" data-profile="${esc(message.sender_id || "")}" aria-label="پروفایل">${esc(avatarLetter(profile?.display_name))}</button>
+    <button class="avatar" data-profile="${esc(message.sender_id || "")}" aria-label="Profile">${esc(avatarLetter(profile?.display_name))}</button>
     <div>
-      <div class="msg-author">${esc(profile?.display_name || "کاربر")}</div>
+      <div class="msg-author">${esc(profile?.display_name || "User")}</div>
       <div class="bubble">${esc(text)}<span class="bubble-meta">${esc(time(message.created_at))}</span></div>
     </div>
   </div>`;
@@ -252,13 +259,13 @@ async function openChat(chatId) {
   const allowed = state.chats.some((chat) => chat.chat_id === chatId);
   const target = allowed ? chatId : MAIN_GROUP_ID;
   const chat = state.chats.find((item) => item.chat_id === target);
-  if (!chat) return toast("چت پیدا نشد.");
+  if (!chat) return toast("Chat not found.");
 
   state.currentChat = target;
   history.replaceState(null, "", `${location.pathname}${target === MAIN_GROUP_ID ? "" : `?chat=${encodeURIComponent(target)}`}`);
   $("messengerView").classList.add("mobile-chat");
-  $("chatTitle").textContent = chat.type === "group" ? (chat.title || "گروه اصلی") : (chat.other_name || "کاربر");
-  $("chatSubtitle").textContent = chat.type === "group" ? "گروه اصلی" : "گفت‌وگوی خصوصی";
+  $("chatTitle").textContent = chatDisplayName(chat);
+  $("chatSubtitle").textContent = chat.type === "group" ? "Main Group" : "Private chat";
   $("chatAvatar").textContent = chatAvatar(chat);
 
   const messages = await getMessages(target);
@@ -272,7 +279,7 @@ async function createDm(otherUserId) {
   const { data, error } = await supabase.rpc("get_or_create_dm", { other_user_id: otherUserId });
   if (error) throw error;
   const chatId = Array.isArray(data) ? data[0]?.chat_id : data?.chat_id;
-  if (!chatId) throw new Error("ساخت PV ناموفق بود.");
+  if (!chatId) throw new Error("Failed to create private chat.");
   await loadChats();
   await openChat(chatId);
 }
@@ -348,14 +355,14 @@ async function login() {
   const name = $("nameInput").value.trim();
   const bio = $("bioInput").value.trim();
   if (!name) {
-    $("loginStatus").textContent = "نام را وارد کن.";
+    $("loginStatus").textContent = "Please enter your name.";
     return;
   }
 
   // Start permission while the user activation is still fresh.
   const permissionPromise = requestNotificationPermission();
   setBusy(true);
-  $("loginStatus").textContent = "در حال ورود…";
+  $("loginStatus").textContent = "Signing in…";
   try {
     let session = (await getExistingSession());
     if (!session?.user) {
@@ -365,7 +372,7 @@ async function login() {
       if (error) throw error;
       session = data.session;
     }
-    if (!session?.user) throw new Error("جلسه کاربر ساخته نشد.");
+    if (!session?.user) throw new Error("User session could not be created.");
 
     state.session = session;
     state.user = session.user;
@@ -378,10 +385,10 @@ async function login() {
 
     const permission = await permissionPromise;
     if (permission === "granted") await registerPush();
-    else toast("اعلان‌ها فعال نشدند؛ بعداً می‌توانی از تنظیمات مرورگر فعالشان کنی.");
+    else toast("Notifications were not enabled. You can enable them later in your browser settings.");
   } catch (error) {
     console.error(error);
-    $("loginStatus").textContent = error?.message || "ورود ناموفق بود.";
+    $("loginStatus").textContent = error?.message || "Sign-in failed.";
     showLogin(state.profile);
   } finally {
     setBusy(false);
@@ -405,7 +412,7 @@ $("composer").addEventListener("submit", async (event) => {
     input.style.height = "auto";
   } catch (error) {
     console.error(error);
-    toast("ارسال پیام ناموفق بود.");
+    toast("Failed to send message.");
   } finally {
     $("sendButton").disabled = false;
   }
@@ -421,7 +428,7 @@ $("myProfileBtn").addEventListener("click", () => showProfile(state.profile));
 $("chatInfoBtn").addEventListener("click", () => {
   const chat = state.chats.find((item) => item.chat_id === state.currentChat);
   if (!chat) return;
-  $("infoContent").innerHTML = `<h2>${esc(chat.type === "group" ? (chat.title || "گروه اصلی") : (chat.other_name || "کاربر"))}</h2><p class="muted">${esc(chat.type === "group" ? "هر عضو جدید به‌صورت خودکار عضو گروه می‌شود." : "گفت‌وگوی خصوصی")}</p>`;
+  $("infoContent").innerHTML = `<h2>${esc(chatDisplayName(chat))}</h2><p class="muted">${esc(chat.type === "group" ? "Every new member joins the main group automatically." : "Private chat")}</p>`;
   $("infoDialog").showModal();
 });
 
@@ -440,8 +447,8 @@ async function showProfile(profile, allowDm = false) {
   $("profileContent").innerHTML = `<div class="profile-card">
     <div class="big-avatar">${esc(avatarLetter(profile.display_name))}</div>
     <h2>${esc(profile.display_name)}</h2>
-    <div class="bio">${esc(profile.bio || "بیویی ثبت نشده.")}</div>
-    ${allowDm && profile.id !== state.user?.id ? '<button id="profileDmBtn" class="primary" style="margin-top:16px;width:100%">ارسال پیام</button>' : ""}
+    <div class="bio">${esc(profile.bio || "No bio set.")}</div>
+    ${allowDm && profile.id !== state.user?.id ? '<button id="profileDmBtn" class="primary" style="margin-top:16px;width:100%">Send message</button>' : ""}
   </div>`;
   $("profileDialog").showModal();
   $("profileDmBtn")?.addEventListener("click", async () => {
@@ -451,7 +458,7 @@ async function showProfile(profile, allowDm = false) {
       $("profileDialog").close();
     } catch (error) {
       console.error(error);
-      toast(error?.message || "ساخت PV ناموفق بود.");
+      toast(error?.message || "Failed to create private chat.");
     }
   });
 }
