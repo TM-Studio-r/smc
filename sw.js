@@ -3,11 +3,20 @@ self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim(
 
 async function chatIsOpen(chatId) {
   if (!chatId) return false;
-  const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+
+  const windows = await self.clients.matchAll({
+    type: "window",
+    includeUncontrolled: true,
+  });
+
   return windows.some((client) => {
     try {
+      if (client.visibilityState !== "visible") return false;
+
       const url = new URL(client.url);
-      return url.searchParams.get("chat") === chatId;
+      const openChat = url.searchParams.get("chat");
+
+      return openChat === chatId;
     } catch {
       return false;
     }
