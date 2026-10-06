@@ -88,6 +88,26 @@ async function ensureServiceWorker() {
   return registration;
 }
 
+function updateServiceWorkerChat(chatId = state.currentChat) {
+  if (!("serviceWorker" in navigator)) return;
+
+  const message = {
+    type: "CHAT_ACTIVE",
+    chatId: document.visibilityState === "visible" ? (chatId || null) : null,
+  };
+
+  const send = (registration) => {
+    const worker = navigator.serviceWorker.controller || registration?.active || registration?.waiting || registration?.installing;
+    if (worker) worker.postMessage(message);
+  };
+
+  if (navigator.serviceWorker.controller) {
+    send();
+  } else {
+    navigator.serviceWorker.ready.then(send).catch(() => {});
+  }
+}
+
 async function registerPush() {
   if (!state.user) return;
   if (!window.isSecureContext || !("serviceWorker" in navigator) || !("PushManager" in window)) return;
@@ -263,6 +283,7 @@ async function openChat(chatId) {
 
   state.currentChat = target;
   history.replaceState(null, "", `${location.pathname}${target === MAIN_GROUP_ID ? "" : `?chat=${encodeURIComponent(target)}`}`);
+  updateServiceWorkerChat(target);
   $("messengerView").classList.add("mobile-chat");
   $("chatTitle").textContent = chatDisplayName(chat);
   $("chatSubtitle").textContent = chat.type === "group" ? "Main Group" : "Private chat";
@@ -394,6 +415,10 @@ async function login() {
     setBusy(false);
   }
 }
+
+document.addEventListener("visibilitychange", () => updateServiceWorkerChat());
+window.addEventListener("focus", () => updateServiceWorkerChat());
+window.addEventListener("pageshow", () => updateServiceWorkerChat());
 
 $("profileForm").addEventListener("submit", (event) => {
   event.preventDefault();
