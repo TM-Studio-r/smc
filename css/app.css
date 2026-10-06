@@ -1,3 +1,21 @@
+@font-face {
+  font-family: "TM-F";
+  src: url("../f.ttf") format("truetype");
+  font-display: swap
+}
+
+@font-face {
+  font-family: "TM-N";
+  src: url("../n.ttf") format("truetype");
+  font-display: swap
+}
+
+@font-face {
+  font-family: "TM-E";
+  src: url("../e.ttf") format("truetype");
+  font-display: swap
+}
+
 * {
   box-sizing: border-box
 }
@@ -6,7 +24,7 @@ html,
 body {
   margin: 0;
   min-height: 100%;
-  font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
+  font-family: "TM-F", "TM-N", "TM-E", system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
   background: #07111f;
   color: #f8fafc
 }
@@ -14,8 +32,8 @@ body {
 body {
   min-height: 100dvh;
   background:
-    radial-gradient(circle at 15% 10%, rgba(59, 130, 246, .28), transparent 30%),
-    radial-gradient(circle at 85% 80%, rgba(168, 85, 247, .25), transparent 30%),
+    radial-gradient(circle at 15% 10%, rgba(59,130,246,.28), transparent 30%),
+    radial-gradient(circle at 85% 80%, rgba(168,85,247,.25), transparent 30%),
     linear-gradient(135deg, #07111f, #111827 55%, #090d18);
   overflow: hidden
 }
@@ -23,7 +41,8 @@ body {
 button,
 input,
 textarea {
-  font: inherit
+  font: inherit;
+  font-family: "TM-F", "TM-N", "TM-E", system-ui, sans-serif
 }
 
 button {
@@ -43,15 +62,15 @@ button {
 }
 
 .glass {
-  background: rgba(17, 24, 39, .58);
-  border: 1px solid rgba(255, 255, 255, .10);
-  box-shadow: 0 20px 70px rgba(0, 0, 0, .28);
+  background: rgba(17,24,39,.58);
+  border: 1px solid rgba(255,255,255,.10);
+  box-shadow: 0 20px 70px rgba(0,0,0,.28);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px)
 }
 
 .auth-view {
-  width: min(430px, 100%);
+  width: min(430px,100%);
   padding: 34px;
   border-radius: 28px;
   text-align: center
@@ -97,9 +116,9 @@ button {
 .composer textarea {
   width: 100%;
   resize: none;
-  border: 1px solid rgba(255, 255, 255, .10);
+  border: 1px solid rgba(255,255,255,.10);
   outline: 0;
-  background: rgba(255, 255, 255, .055);
+  background: rgba(255,255,255,.055);
   color: #fff;
   border-radius: 16px;
   padding: 12px 14px
@@ -108,14 +127,14 @@ button {
 .auth-form input:focus,
 .auth-form textarea:focus,
 .composer textarea:focus {
-  border-color: rgba(147, 197, 253, .55)
+  border-color: rgba(147,197,253,.55)
 }
 
 .primary {
   padding: 13px;
   border-radius: 16px;
   color: #fff;
-  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  background: linear-gradient(135deg,#2563eb,#7c3aed);
   font-weight: 800
 }
 
@@ -126,8 +145,8 @@ button {
 }
 
 .messenger {
-  width: min(1250px, 100%);
-  height: min(900px, calc(100dvh - 36px));
+  width: min(1250px,100%);
+  height: min(900px,calc(100dvh - 36px));
   display: grid;
   grid-template-columns: 340px 1fr;
   gap: 14px
@@ -141,6 +160,26 @@ button {
   position: relative
 }
 
+.sidebar.glass,
+.chat-panel.glass {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 20px 70px rgba(0,0,0,.28);
+  border: 1px solid rgba(255,255,255,.10)
+}
+
+.sidebar::before,
+.chat-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(17,24,39,.56);
+  pointer-events: none;
+  z-index: 0
+}
+
 .sidebar {
   display: flex;
   flex-direction: column
@@ -148,7 +187,6 @@ button {
 
 .topbar,
 .chat-header {
-  background: rgba(0, 0, 0, 0.25);
   position: absolute;
   top: 10px;
   left: 10px;
@@ -158,12 +196,16 @@ button {
   align-items: center;
   gap: 12px;
   border-radius: 50px;
-  backdrop-filter: blur(15px) saturate(150%);
-  --webkit-backdrop-filter: blur(15px) saturate(150%);
+  background: rgba(12,20,34,.20);
+  backdrop-filter: blur(28px) saturate(155%);
+  -webkit-backdrop-filter: blur(28px) saturate(155%);
   padding: 14px 18px;
-  border: 1px solid rgba(255, 255, 255, .10);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, .20);
-  z-index: 20
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow:
+    0 14px 45px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.08);
+  z-index: 50;
+  overflow: hidden
 }
 
 .topbar h2 {
@@ -179,7 +221,7 @@ button {
   width: 40px;
   height: 40px;
   border-radius: 13px;
-  background: rgba(255, 255, 255, .07);
+  background: rgba(255,255,255,.07);
   color: #fff
 }
 
@@ -188,8 +230,11 @@ button {
 }
 
 .chat-list {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   overflow: auto;
-  padding: 100px 8px 8px
+  padding: 100px 8px 10px
 }
 
 .chat-item {
@@ -203,7 +248,10 @@ button {
   min-width: 100%
 }
 
-
+.chat-item:hover,
+.chat-item.active {
+  background: rgba(255,255,255,.08)
+}
 
 .chat-item .preview {
   min-width: 0;
@@ -236,14 +284,13 @@ button {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #334155, #7c3aed);
+  background: linear-gradient(135deg,#334155,#7c3aed);
   font-weight: 800;
   user-select: none
 }
 
 .chat-panel {
-  display: flex;
-  flex-direction: column
+  display: block
 }
 
 .chat-title-wrap {
@@ -264,20 +311,23 @@ button {
 }
 
 .messages {
-  flex: 1;
-  min-height: 0;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   overflow: auto;
-  padding: 96px 16px 100px;
+  padding: 105px 16px 110px;
   display: flex;
   flex-direction: column;
-  gap: 7px
+  gap: 7px;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch
 }
 
 .day-label {
   align-self: center;
   padding: 6px 11px;
   border-radius: 99px;
-  background: rgba(255, 255, 255, .07);
+  background: rgba(255,255,255,.07);
   font-size: .7rem;
   color: #a9b5c9;
   margin: 6px
@@ -287,7 +337,7 @@ button {
   display: flex;
   align-items: flex-end;
   gap: 8px;
-  max-width: min(78%, 680px)
+  max-width: min(78%,680px)
 }
 
 .msg-row.mine {
@@ -308,15 +358,18 @@ button {
 .bubble {
   padding: 10px 13px;
   border-radius: 17px;
-  background: rgba(255, 255, 255, .075);
-  border: 1px solid rgba(255, 255, 255, .06);
+  background: rgba(17,24,39,.42);
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 12px 35px rgba(0,0,0,.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   line-height: 1.65;
   white-space: pre-wrap;
   overflow-wrap: anywhere
 }
 
 .mine .bubble {
-  background: linear-gradient(135deg, rgba(37, 99, 235, .62), rgba(124, 58, 237, .55))
+  background: linear-gradient(135deg,rgba(37,99,235,.58),rgba(124,58,237,.50))
 }
 
 .bubble-meta {
@@ -331,29 +384,34 @@ button {
   left: 10px;
   right: 10px;
   bottom: 10px;
-  z-index: 20;
+  z-index: 50;
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 10px 12px;
-  border: 1px solid rgba(255, 255, 255, .10);
+  padding: 9px 10px;
+  border: 1px solid rgba(255,255,255,.12);
   border-radius: 50px;
-  background: rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(15px);
-  --webkit-backdrop-filter: blur(15px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, .20)
+  background: rgba(12,20,34,.20);
+  backdrop-filter: blur(28px) saturate(155%);
+  -webkit-backdrop-filter: blur(28px) saturate(155%);
+  box-shadow:
+    0 14px 45px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.08);
+  overflow: hidden
 }
 
 .composer textarea {
   flex: 1;
   width: auto;
+  min-width: 0;
   max-height: 130px;
+  min-height: 44px;
   margin: 0;
   border: 0;
-  background: transparent;
+  background: rgba(255,255,255,.045);
   box-shadow: none;
-  border-radius: 0;
-  padding: 10px 8px
+  border-radius: 30px;
+  padding: 10px 12px
 }
 
 .composer textarea:focus {
@@ -366,7 +424,7 @@ button {
   flex: 0 0 48px;
   border-radius: 50%;
   color: #fff;
-  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  background: linear-gradient(135deg,#2563eb,#7c3aed);
   font-size: 1.15rem
 }
 
@@ -375,23 +433,24 @@ button {
 }
 
 .dialog {
-  width: min(440px, calc(100% - 30px));
+  width: min(440px,calc(100% - 30px));
   color: #fff;
   border-radius: 24px;
   padding: 26px;
-  border: 1px solid rgba(255, 255, 255, .1)
+  border: 1px solid rgba(255,255,255,.1)
 }
 
 .dialog::backdrop {
-  background: rgba(0, 0, 0, .55);
-  backdrop-filter: blur(7px)
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px)
 }
 
 .dialog-close {
   position: absolute;
   top: 10px;
   left: 10px;
-  background: rgba(255, 255, 255, .08);
+  background: rgba(255,255,255,.08);
   color: #fff;
   width: 34px;
   height: 34px;
@@ -412,7 +471,7 @@ button {
   place-items: center;
   font-size: 2rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #334155, #7c3aed)
+  background: linear-gradient(135deg,#334155,#7c3aed)
 }
 
 .profile-card h2 {
@@ -434,10 +493,11 @@ button {
   pointer-events: none;
   padding: 11px 16px;
   border-radius: 14px;
-  background: rgba(15, 23, 42, .85);
-  backdrop-filter: blur(15px);
+  background: rgba(15,23,42,.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   transition: .25s;
-  z-index: 30
+  z-index: 100
 }
 
 .toast.show {
@@ -445,7 +505,7 @@ button {
   transform: translateX(-50%) translateY(0)
 }
 
-@media(max-width: 760px) {
+@media(max-width:760px) {
   body {
     overflow: hidden
   }
@@ -467,7 +527,7 @@ button {
   }
 
   .chat-panel {
-    display: none
+    display: block
   }
 
   .messenger.mobile-chat .sidebar {
@@ -475,7 +535,7 @@ button {
   }
 
   .messenger.mobile-chat .chat-panel {
-    display: flex
+    display: block
   }
 
   .mobile-only {
@@ -494,14 +554,28 @@ button {
     height: 70px
   }
 
+  .chat-list {
+    padding: 92px 8px 10px
+  }
+
   .messages {
-    padding: 88px 12px 92px
+    padding: 88px 12px 98px
   }
 
   .composer {
     left: 10px;
     right: 10px;
-    bottom: max(10px, env(safe-area-inset-bottom));
-    padding: 10px 12px
+    bottom: max(10px,env(safe-area-inset-bottom));
+    padding: 8px
+  }
+
+  .composer textarea {
+    min-height: 44px
+  }
+
+  .send-btn {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px
   }
 }
