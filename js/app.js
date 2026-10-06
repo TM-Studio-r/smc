@@ -76,13 +76,15 @@ function urlBase64ToUint8Array(base64) {
 }
 
 async function ensureServiceWorker() {
-  if (!window.isSecureContext || !("serviceWorker" in navigator)) return null;
+  if (!("serviceWorker" in navigator)) {
+    throw new Error("Service Worker پشتیبانی نمی‌شود.");
+  }
 
-  // GitHub Pages serves the app from a repository sub-path, so the SW path
-  // must be relative to index.html (not /sw.js at the domain root).
-  const registration = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+  const registration = await navigator.serviceWorker.register("./sw.js", {
+    scope: "./",
+  });
+
   await navigator.serviceWorker.ready;
-  console.log("TM Messenger SW ready:", registration.scope);
   return registration;
 }
 
